@@ -1,7 +1,7 @@
 # REST API - NodeJS + PostgreSQL
 
 ## Overview
-This is a simple CRUD application built with Node.js and PostgreSQL. The application manages products and categories, allowing you to perform basic operations on these entities.
+This is a simple CRUD application built with Node.js, Express and PostgreSQL. The application manages products and categories, allowing you to perform basic operations on these entities.
 
 ## Database Schema
 The application uses the following database schema:
