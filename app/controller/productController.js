@@ -123,3 +123,29 @@ exports.getProductById = async (req, res) => {
         return res.status(500).json({ error: error.message })
     }
 }
+
+exports.getProductsByCategoryId = async (req, res) => {
+    try {
+        const existsResult = await db.pool.query({
+            text: 'SELECT EXISTS (SELECT * FROM category WHERE id = $1)',
+            values: [req.params.id]
+        })
+        if (!existsResult.rows[0].exists) {
+            return res.status(404).json({ error: 'Category not found' })
+        }
+        const result = await db.pool.query({
+            text: `
+                SELECT p.id, p.name, p.description, p.price, p.currency, 
+                    p.quantity, p.active, p.created_date, p.updated_date,              
+                    (SELECT ROW_TO_JSON(category_obj) FROM (
+                        SELECT id, name FROM category WHERE id = p.category_id
+                    ) category_obj) AS category
+                FROM product p   
+                WHERE p.category_id = $1`,
+            values: [req.params.id]
+        })
+        return res.status(200).json(result.rows)
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+}
