@@ -59,3 +59,25 @@ exports.updateCategory = async (req, res) => {
         return res.status(500).json({error: error.message});
     }
 }
+
+exports.deleteCategory = async (req, res) => {
+    try {
+        const countResult = await db.pool.query({
+            text: 'SELECT COUNT(*) FROM product WHERE category_id = $1',
+            values: [req.params.id]
+        })
+        if (countResult.rows[0].count > 0) {
+            return res.status(409).json({ error: `Category is being used in ${countResult.rows[0].count} product(s)` })
+        }
+        const result = await db.pool.query({
+            text: 'DELETE FROM category WHERE id = $1',
+            values: [req.params.id]
+        })
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Category not found' })
+        }
+        return res.status(204).send()
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+}

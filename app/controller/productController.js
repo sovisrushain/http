@@ -86,3 +86,18 @@ exports.updateProduct = async (req, res) => {
         return res.status(500).json({ error: error.message })
     }
 }
+
+exports.deleteProduct = async (req, res) => {
+    try {
+        const result = await db.pool.query({
+            text: 'DELETE FROM product WHERE id = $1',
+            values: [req.params.id]
+        })
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Product not found' })
+        }
+        return res.status(204).send()
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+}
