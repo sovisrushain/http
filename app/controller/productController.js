@@ -54,3 +54,35 @@ exports.createProduct = async (req, res) => {
         return res.status(500).json({error: error.message});
     }
 }
+
+exports.updateProduct = async (req, res) => {
+    try {
+        if (!req.body.name || !req.body.description || !req.body.price || !req.body.currency || !req.body.quantity || !req.body.active || !req.body.category_id) {
+            return res.status(422).json({ error: 'All fields are required' })
+        }
+        const result = await db.pool.query({
+            text: `
+                UPDATE product
+                SET name = $1, description = $2, price = $3, currency = $4, quantity = $5, active = $6, category_id = $7, updated_date = CURRENT_TIMESTAMP
+                WHERE id = $8
+                RETURNING *
+            `,
+            values: [
+                req.body.name,
+                req.body.description,
+                req.body.price,
+                req.body.currency,
+                req.body.quantity,
+                req.body.active,
+                req.body.category_id,
+                req.params.id
+            ]
+        })
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Product not found' })
+        }
+        return res.status(200).json(result.rows[0])
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
+}
